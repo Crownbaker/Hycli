@@ -16,7 +16,7 @@ pub struct Provider {
     pub default_model: &'static str,
     pub key_url: &'static str,
 }
-pub const PROVIDERS: [Provider; 6] = [
+pub const PROVIDERS: [Provider; 7] = [
     Provider {
         id: "openai",
         name: "OpenAI",
@@ -48,6 +48,12 @@ pub const PROVIDERS: [Provider; 6] = [
         key_url: "https://z.ai/manage-apikey/apikey-list",
     },
     Provider {
+        id: "opencode-go",
+        name: "OpenCode Go",
+        default_model: "deepseek-v4.1-flash",
+        key_url: "https://opencode.ai/console",
+    },
+    Provider {
         id: "codex",
         name: "Codex",
         default_model: "",
@@ -62,6 +68,9 @@ pub struct Config {
     pub provider: String,
     pub model: String,
     pub key: String,
+    /// Conversation identifier for providers that route and cache by session.
+    /// Empty means each request is its own conversation.
+    pub session: String,
 }
 #[derive(Clone, Serialize)]
 pub struct ProviderView {
@@ -91,6 +100,7 @@ impl Client {
             .connect_timeout(Duration::from_secs(20))
             .redirect(reqwest::redirect::Policy::none())
             .retry(reqwest::retry::never())
+            .user_agent(concat!("hycli/", env!("CARGO_PKG_VERSION")))
             .build()
             .unwrap_or_else(|_| reqwest::Client::new());
         Self {
@@ -136,6 +146,12 @@ impl Client {
                 "/chat/completions",
                 json!({"model":model,"max_tokens":16000,"messages":[{"role":"system","content":system},{"role":"user","content":prompt}]}),
             ),
+            // Reasoning models on Go count reasoning tokens against `max_tokens`,
+            // so the answer keeps the same room as other providers after reasoning.
+            "opencode-go" => (
+                OPENCODE_GO_CHAT,
+                json!({"model":model,"max_tokens":32000,"messages":[{"role":"system","content":system},{"role":"user","content":prompt}]}),
+            ),
             _ => (
                 "/responses",
                 json!({"model":model,"store":false,"max_output_tokens":16000,"input":[{"role":"system","content":system},{"role":"user","content":prompt}]}),
@@ -159,6 +175,9 @@ impl Client {
             } else {
                 config.model.clone()
             }]);
+        }
+        if config.provider == "opencode-go" {
+            return self.opencode_go_models(config).await;
         }
         let mut models = Vec::new();
         let mut path = "/models".to_string();
@@ -184,6 +203,27 @@ impl Client {
                 url::form_urlencoded::byte_serialize(last.as_bytes()).collect::<String>()
             );
         }
+        models.sort();
+        models.dedup();
+        if models.is_empty() {
+            return Err(AppError::api("model_unavailable", 400));
+        }
+        Ok(models)
+    }
+    /// Go lists every plan model, including Anthropic- and Google-format models this
+    /// adapter cannot call. Only Chat Completions models are selectable.
+    async fn opencode_go_models(&self, config: &Config) -> AppResult<Vec<String>> {
+        let value = self
+            .request(config, "GET", OPENCODE_GO_MODELS, None)
+            .await?;
+        let mut models: Vec<String> = value
+            .get("data")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter(|model| model.pointer("/api/chat-completions").is_some())
+            .filter_map(|model| model.get("id").and_then(Value::as_str).map(String::from))
+            .collect();
         models.sort();
         models.dedup();
         if models.is_empty() {
@@ -234,6 +274,16 @@ impl Client {
         } else {
             request = request.bearer_auth(&config.key);
         }
+        if config.provider == "opencode-go" {
+            // Go rejects requests without a session (MissingSessionID) and uses it
+            // for routing and prompt caching across one conversation.
+            let session = if config.session.is_empty() {
+                util::id()
+            } else {
+                config.session.clone()
+            };
+            request = request.header("x-opencode-session", session);
+        }
         if let Some(body) = body {
             request = request.json(&body);
         }
@@ -276,6 +326,9 @@ impl Client {
 fn is_zai(provider: &str) -> bool {
     matches!(provider, "zai" | "zai-coding-plan")
 }
+/// Paths under the Go origin. Chat and the model list live under different prefixes.
+const OPENCODE_GO_CHAT: &str = "/openai/v1/chat/completions";
+const OPENCODE_GO_MODELS: &str = "/v1/models";
 fn api_origin(provider: &str) -> AppResult<&'static str> {
     match provider {
         "openai" => Ok("https://api.openai.com/v1"),
@@ -283,6 +336,7 @@ fn api_origin(provider: &str) -> AppResult<&'static str> {
         "xai" => Ok("https://api.x.ai/v1"),
         "zai" => Ok("https://api.z.ai/api/paas/v4"),
         "zai-coding-plan" => Ok("https://api.z.ai/api/coding/paas/v4"),
+        "opencode-go" => Ok("https://opencode.ai/inference/go"),
         _ => Err(AppError::api("provider_missing", 400)),
     }
 }
@@ -314,7 +368,8 @@ pub fn extract_text(provider: &str, value: &Value) -> AppResult<String> {
                 }
             }
         }
-        "zai" | "zai-coding-plan" => {
+        "zai" | "zai-coding-plan" | "opencode-go" => {
+            // `reasoning_content` is model reasoning, not the answer, and is never returned.
             if value
                 .pointer("/choices/0/finish_reason")
                 .and_then(Value::as_str)
@@ -425,9 +480,14 @@ pub fn provider_error(status: u16, bytes: &[u8]) -> AppError {
     .any(|s| body.contains(s))
     {
         "insufficient_balance"
-    } else if ["model_not_found", "model not found", "1311"]
-        .iter()
-        .any(|s| body.contains(s))
+    } else if [
+        "model_not_found",
+        "model not found",
+        "1311",
+        "model is unavailable",
+    ]
+    .iter()
+    .any(|s| body.contains(s))
     {
         "model_unavailable"
     } else if status == 429 || status == 529 {

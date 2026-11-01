@@ -448,6 +448,7 @@ impl Runtime {
                 settings.model.clone()
             },
             key,
+            session: String::new(),
         })
     }
     pub fn providers(&self) -> AppResult<Vec<ai::ProviderView>> {

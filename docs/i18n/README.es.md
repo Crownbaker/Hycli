@@ -175,7 +175,10 @@ Conectar un agente de IA a sitios web reales y cuentas con sesión iniciada plan
 | Claude | Clave de API de Anthropic |
 | xAI | Clave de API de xAI |
 | Z.ai / Z.ai Coding Plan | Clave de API de Z.ai |
+| OpenCode Go | Clave de API de OpenCode Go |
 | ChatGPT · inicio de sesión | Inicio de sesión local de ChatGPT mediante el protocolo oficial Codex app-server |
+
+Conecta DeepSeek V4.1 Flash y otros modelos de chat con tu clave de OpenCode Go. DeepSeek requiere la región Global en la configuración de privacidad de OpenCode.
 
 La conexión mediante inicio de sesión de Codex se ejecuta en un hilo efímero con la ejecución de archivos, shell, navegador y MCP externos desactivada; Hycli nunca lee ni copia tokens OAuth de Codex.
 

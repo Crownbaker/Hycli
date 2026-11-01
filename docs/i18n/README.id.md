@@ -175,7 +175,10 @@ Menghubungkan agen AI ke situs web nyata dan akun yang sedang login menimbulkan 
 | Claude | Kunci API Anthropic |
 | xAI | Kunci API xAI |
 | Z.ai / Z.ai Coding Plan | Kunci API Z.ai |
+| OpenCode Go | Kunci API OpenCode Go |
 | ChatGPT · login | Login ChatGPT lokal melalui protokol resmi Codex app-server |
+
+Hubungkan DeepSeek V4.1 Flash dan model chat lainnya dengan kunci OpenCode Go Anda. DeepSeek memerlukan wilayah Global di pengaturan privasi OpenCode.
 
 Koneksi login Codex berjalan dalam thread sementara dengan eksekusi berkas, shell, peramban, dan MCP eksternal dinonaktifkan; Hycli tidak pernah membaca atau menyalin token OAuth Codex.
 

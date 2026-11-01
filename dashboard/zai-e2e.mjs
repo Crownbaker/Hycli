@@ -28,7 +28,7 @@ try {
   await installFixtureSession(context, ports);
  await page.goto(ports.dashboard, { waitUntil: 'domcontentloaded' });
   await button(page, 'nav.connections').click();
-  assert.equal(await page.locator('.provider-card').count(), 5);
+  assert.equal(await page.locator('.provider-card').count(), 6);
   await button(page.locator('.provider-card--zai'), 'connections.connect').click();
   assert.equal(await choice().inputValue(), 'zai');
   assert.deepEqual(await choice().locator('option').allTextContents(), ['Z.ai', 'Z.ai Coding Plan']);
@@ -81,6 +81,30 @@ try {
   data = await state();
   assert.equal(data.providers.find(p => p.id === 'zai-coding-plan').connected, true);
   assert.equal(data.providers.find(p => p.id === 'zai').model, 'glm-5.3');
+
+  // OpenCode Go: a rejected key is reported and not saved; an accepted key lists chat models only.
+  console.log('Checking the OpenCode Go connection against the Rust fixture.');
+  const defaultBeforeGo = data.settings.default_provider;
+  await button(page.locator('.provider-card--opencode-go'), 'connections.connect').click();
+  assert.equal(await choice().count(), 0);
+  assert.equal(await modelInput().inputValue(), 'deepseek-v4.1-flash');
+  await keyInput().fill('wrong-go-key');
+  await button(dialog(), 'common.save').click();
+  await dialog().getByRole('alert').filter({ hasText: en['errors.credentials_invalid'] }).waitFor();
+  data = await state();
+  assert.equal(data.providers.find(p => p.id === 'opencode-go').connected, false);
+  assert.equal(data.providers.find(p => p.id === 'opencode-go').has_key, false);
+  await keyInput().fill('synthetic-go-key');
+  await save();
+  data = await state();
+  const go = data.providers.find(p => p.id === 'opencode-go');
+  assert.equal(go.connected, true);
+  assert.equal(go.model, 'deepseek-v4.1-flash');
+  assert.deepEqual(go.models, ['deepseek-v4.1-flash', 'glm-5.3']);
+  assert.equal(data.settings.default_provider, defaultBeforeGo);
+  for (const secret of ['synthetic-go-key', 'wrong-go-key', 'fixture reasoning']) assert.ok(!JSON.stringify(data).includes(secret));
+  assert.equal(await page.locator('.provider-card--opencode-go .provider-mark--opencode img').getAttribute('src'), '/brand/providers/opencode.svg');
+  assert.equal(await page.locator('.provider-card--opencode-go .provider-mark--opencode img').evaluate(img => img.complete && img.naturalWidth > 0), true);
   await documentationScreenshot(page, { path: 'docs/images/ai-connections.png', fullPage: true });
   await edit('zai-coding-plan');
   await documentationScreenshot(page, { path: 'docs/design/zai-plan-selection.png' });
@@ -91,7 +115,7 @@ try {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
   await documentationScreenshot(page, { path: 'docs/design/zai-connections-mobile.png', fullPage: true });
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ zai: 'passed', codingPlan: 'passed', selector: 'separate keys and models; no unsaved-key carryover', persistence: 'save, reload and disconnect isolated', mobile: 'no overflow', consoleErrors: 0 }, null, 2));
+  console.log(JSON.stringify({ zai: 'passed', codingPlan: 'passed', opencodeGo: 'rejected key unsaved; chat models only; official mark loaded', selector: 'separate keys and models; no unsaved-key carryover', persistence: 'save, reload and disconnect isolated', mobile: 'no overflow', consoleErrors: 0 }, null, 2));
 } finally {
   await context.close(); if (!process.env.TEST_CDP) await browser.close();
 }

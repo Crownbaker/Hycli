@@ -53,6 +53,7 @@ pub(super) async fn save_provider(
             model.to_owned()
         },
         key: key.trim().to_owned(),
+        session: String::new(),
     };
     let models = web.core.ai.check(&config).await?;
     web.core.finish_provider_change(&id, revision, || {

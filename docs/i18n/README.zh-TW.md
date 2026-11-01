@@ -175,7 +175,10 @@ Hycli 將網站的各種真實介面轉換為具自我說明能力的 CLI 子指
 | Claude | Anthropic API 金鑰 |
 | xAI | xAI API 金鑰 |
 | Z.ai / Z.ai Coding Plan | Z.ai API 金鑰 |
+| OpenCode Go | OpenCode Go API 金鑰 |
 | ChatGPT · 登入 | 透過官方 Codex app-server 協定管理的本機 ChatGPT 登入 |
+
+使用 OpenCode Go 金鑰連接 DeepSeek V4.1 Flash 等聊天模型。 DeepSeek 需要在 OpenCode 隱私設定中選擇 Global 區域。
 
 Codex 登入連線在停用檔案、Shell、瀏覽器與外部 MCP 執行的臨時執行緒中運作；Hycli 絕不讀取或複製 Codex OAuth 權杖。
 

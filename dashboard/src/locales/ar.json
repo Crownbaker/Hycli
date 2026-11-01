@@ -394,6 +394,7 @@
   "connections.xaiHint": "اتصل بـ Grok باستخدام مفتاح xAI API.",
   "connections.zaiHint": "اتصل بالنماذج المتاحة في حساب Z.ai API الخاص بك.",
   "connections.zaiPlanHint": "اتصل بمفتاح Z.ai Coding Plan منفصل.",
+  "connections.opencode-goHint": "اربط DeepSeek V4.1 Flash ونماذج الدردشة الأخرى باستخدام مفتاح OpenCode Go. يتطلب DeepSeek اختيار المنطقة Global في إعدادات الخصوصية في OpenCode.",
   "sites.rename": "إعادة تسمية الموقع",
   "sites.openActions": "استكشاف الإجراءات",
   "activity.viewWork": "عرض سجل العمل",

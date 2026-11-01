@@ -220,8 +220,9 @@ impl Runtime {
         if !policy::safe_read_url(&url) {
             return Err(AppError::api("bad_url", 400));
         }
-        let config = self.config(provider)?;
+        let mut config = self.config(provider)?;
         let mut job = Job::new("prepare", locale);
+        config.session = job.id.clone();
         job.url = url.to_string();
         job.intent = util::redact_text(intent.trim());
         job.site_id = if site_id.is_empty() {
@@ -262,8 +263,9 @@ impl Runtime {
         if parent.artifact.is_some() {
             return Err(AppError::api("bad_request", 400));
         }
-        let config = self.config(provider)?;
+        let mut config = self.config(provider)?;
         let mut job = Job::new("summary", &parent.locale);
+        config.session = job.id.clone();
         job.parent_id = id.into();
         job.site_id = parent.site_id;
         job.site_title = parent.site_title;
@@ -296,8 +298,9 @@ impl Runtime {
         locale: &str,
     ) -> AppResult<Job> {
         let sp = self.spec(site)?;
-        let config = self.config(provider)?;
+        let mut config = self.config(provider)?;
         let mut job = Job::new("describe", locale);
+        config.session = job.id.clone();
         job.site_id = site.into();
         job.site_title = sp.site.title.clone();
         job.provider = config.provider.clone();

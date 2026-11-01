@@ -175,7 +175,10 @@ Einen KI-Agenten mit echten Websites und angemeldeten Konten zu verbinden, wirft
 | Claude | Anthropic-API-Schlüssel |
 | xAI | xAI-API-Schlüssel |
 | Z.ai / Z.ai Coding Plan | Z.ai-API-Schlüssel |
+| OpenCode Go | OpenCode Go-API-Schlüssel |
 | ChatGPT · Login | Lokale ChatGPT-Anmeldung über das offizielle Codex-App-Server-Protokoll |
+
+Verbinden Sie DeepSeek V4.1 Flash und weitere Chatmodelle mit Ihrem OpenCode-Go-Schlüssel. DeepSeek erfordert die Region „Global“ in den OpenCode-Datenschutzeinstellungen.
 
 Die Codex-Login-Verbindung läuft in einem kurzlebigen Thread, in dem Datei-, Shell-, Browser- und externe MCP-Ausführungen deaktiviert sind; Hycli liest oder kopiert niemals Codex-OAuth-Tokens.
 

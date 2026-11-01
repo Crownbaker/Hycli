@@ -408,6 +408,7 @@
   "connections.xaiHint": "Kết nối Grok bằng khóa API xAI.",
   "connections.zaiHint": "Kết nối các mô hình có trong tài khoản API Z.ai của bạn.",
   "connections.zaiPlanHint": "Kết nối bằng khóa Z.ai Coding Plan riêng.",
+  "connections.opencode-goHint": "Kết nối DeepSeek V4.1 Flash và các mô hình trò chuyện khác bằng khóa OpenCode Go của bạn. DeepSeek yêu cầu chọn khu vực Global trong cài đặt quyền riêng tư của OpenCode.",
   "sites.rename": "Đổi tên trang web",
   "sites.openActions": "Xem các thao tác",
   "activity.viewWork": "Xem nhật ký công việc",

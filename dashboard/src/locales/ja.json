@@ -408,6 +408,7 @@
   "connections.xaiHint": "xAI APIキーでGrokに接続します。",
   "connections.zaiHint": "Z.ai APIアカウントで利用できるモデルに接続します。",
   "connections.zaiPlanHint": "別のZ.ai Coding Planキーで接続します。",
+  "connections.opencode-goHint": "OpenCode Go キーで DeepSeek V4.1 Flash などのチャットモデルを接続します。 DeepSeek を使うには OpenCode のプライバシー設定で Global リージョンを選択してください。",
   "sites.rename": "ウェブサイト名を変更",
   "sites.openActions": "操作を見る",
   "activity.viewWork": "作業ログを見る",

@@ -25,7 +25,7 @@ export function SiteIcon({ title, image, size = 'normal' }: { title: string; ima
   return <span className={`site-icon site-icon--${color} site-icon--${size} ${image && !failed ? 'site-icon--image' : ''}`} aria-hidden="true">{image && !failed ? <img src={image} alt="" onError={() => setFailed(true)} /> : title.trim() ? [...title.trim()][0].toLocaleUpperCase() : <Globe2 size={24} />}</span>;
 }
 export function ProviderMark({ id }: { id: string }) {
-  const family = ['codex', 'openai', 'chatgpt'].includes(id) ? 'chatgpt' : id.startsWith('zai') ? 'zai' : id;
+  const family = ['codex', 'openai', 'chatgpt'].includes(id) ? 'chatgpt' : id.startsWith('zai') ? 'zai' : id.startsWith('opencode') ? 'opencode' : id;
   return <span className={`provider-mark provider-mark--${family}`} aria-hidden="true">{family === 'chatgpt' ? <><img className="brand-light" src="/brand/providers/chatgpt-black.svg" alt="" /><img className="brand-dark" src="/brand/providers/chatgpt-white.svg" alt="" /></> : <img src={`/brand/providers/${family === 'anthropic' ? 'claude.png' : family + '.svg'}`} alt="" />}</span>;
 }
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) { return <label className="field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>; }

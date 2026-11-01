@@ -394,6 +394,7 @@
   "connections.xaiHint": "Подключите Grok с помощью ключа API xAI.",
   "connections.zaiHint": "Подключите модели, доступные в вашем аккаунте API Z.ai.",
   "connections.zaiPlanHint": "Подключите отдельный ключ Z.ai Coding Plan.",
+  "connections.opencode-goHint": "Подключите DeepSeek V4.1 Flash и другие чат-модели с помощью ключа OpenCode Go. Для DeepSeek выберите регион Global в настройках конфиденциальности OpenCode.",
   "sites.rename": "Переименовать сайт",
   "sites.openActions": "Посмотреть действия",
   "activity.viewWork": "Посмотреть журнал работы",

@@ -175,7 +175,10 @@ Zobacz [specyfikację operacji](../SITESPEC.md), aby poznać obsługiwane format
 | Claude | Klucz API Anthropic |
 | xAI | Klucz API xAI |
 | Z.ai / Z.ai Coding Plan | Klucz API Z.ai |
+| OpenCode Go | Klucz API OpenCode Go |
 | ChatGPT · logowanie | Lokalne logowanie ChatGPT przez oficjalny protokół Codex app-server |
+
+Połącz DeepSeek V4.1 Flash i inne modele czatu za pomocą klucza OpenCode Go. DeepSeek wymaga regionu Global w ustawieniach prywatności OpenCode.
 
 Połączenie logowania Codex działa w tymczasowym wątku z wyłączonym dostępem do plików, powłoki, przeglądarki i zewnętrznych serwerów MCP; Hycli nigdy nie odczytuje ani nie kopiuje tokenów OAuth narzędzia Codex.
 

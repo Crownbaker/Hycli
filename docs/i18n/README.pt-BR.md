@@ -175,7 +175,10 @@ Conectar um agente de IA a sites reais e contas autenticadas levanta questões s
 | Claude | Chave de API da Anthropic |
 | xAI | Chave de API da xAI |
 | Z.ai / Z.ai Coding Plan | Chave de API da Z.ai |
+| OpenCode Go | Chave de API da OpenCode Go |
 | ChatGPT · login | Login local do ChatGPT por meio do protocolo oficial Codex app-server |
+
+Conecte o DeepSeek V4.1 Flash e outros modelos de chat com sua chave do OpenCode Go. O DeepSeek exige a região Global nas configurações de privacidade do OpenCode.
 
 A conexão de login do Codex é executada em uma thread efêmera com execução de arquivos, shell, navegador e MCP externo desativada; o Hycli nunca lê nem copia tokens OAuth do Codex.
 

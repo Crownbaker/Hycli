@@ -91,6 +91,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             (StatusCode::OK, Json(json!({"choices":[{"finish_reason":"stop","message":{"content":"OK"}}]})))
         }));
     }
+    // OpenCode Go: the model list mixes API formats; chat requests need a session.
+    api = api
+        .route("/go/v1/models", get(|| async {
+            Json(json!({"object":"list","data":[
+                {"id":"qwen3.8-max","api":{"messages":{}}},
+                {"id":"deepseek-v4.1-flash","api":{"chat-completions":{}}},
+                {"id":"glm-5.3","api":{"chat-completions":{}}}
+            ]}))
+        }))
+        .route("/go/openai/v1/chat/completions", post(|headers: HeaderMap, Json(body): Json<Value>| async move {
+            if headers.get("authorization").and_then(|v| v.to_str().ok()) != Some("Bearer synthetic-go-key") || body.to_string().contains("synthetic-go-key") {
+                return (StatusCode::UNAUTHORIZED, Json(json!({"error":{"type":"server_error","message":"Upstream request failed: Go requires a credential"}})));
+            }
+            if headers.get("x-opencode-session").is_none_or(|v| v.is_empty()) {
+                return (StatusCode::BAD_REQUEST, Json(json!({"type":"error","error":{"type":"MissingSessionID","message":"Request is missing x-opencode-session"}})));
+            }
+            (StatusCode::OK, Json(json!({"choices":[{"finish_reason":"stop","message":{"content":"OK","reasoning_content":"fixture reasoning"}}]})))
+        }));
     tokio::spawn(async move {
         axum::serve(api_listener, api).await.unwrap();
     });
@@ -106,6 +124,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "zai-coding-plan".into(),
         format!("{provider_url}/api/coding/paas/v4"),
     );
+    origins.insert("opencode-go".into(), format!("{provider_url}/go"));
     origins.insert("openai".into(), provider_url);
     core.vault
         .lock()

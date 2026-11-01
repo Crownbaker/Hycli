@@ -175,7 +175,10 @@ Hycli превращает реальные интерфейсы веб-сайт
 | Claude | API-ключ Anthropic |
 | xAI | API-ключ xAI |
 | Z.ai / Z.ai Coding Plan | API-ключ Z.ai |
+| OpenCode Go | API-ключ OpenCode Go |
 | ChatGPT · вход | Локальный вход в ChatGPT через официальный протокол Codex app-server |
+
+Подключите DeepSeek V4.1 Flash и другие чат-модели с помощью ключа OpenCode Go. Для DeepSeek выберите регион Global в настройках конфиденциальности OpenCode.
 
 Подключение через вход Codex работает во временном потоке с отключённым доступом к файлам, оболочке, браузеру и внешним MCP-серверам; Hycli никогда не читает и не копирует OAuth-токены Codex.
 
