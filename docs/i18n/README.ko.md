@@ -175,7 +175,10 @@ AI 에이전트를 실제 웹사이트나 로그인된 계정에 연결할 때 �
 | Claude | Anthropic API 키 |
 | xAI | xAI API 키 |
 | Z.ai / Z.ai Coding Plan | Z.ai API 키 |
+| OpenCode Go | OpenCode Go API 키 |
 | ChatGPT · 로그인 | 설치된 Codex app-server가 관리하는 로컬 ChatGPT 로그인 |
+
+OpenCode Go 키로 DeepSeek V4.1 Flash 등 채팅 모델을 연결하세요. DeepSeek는 OpenCode 개인정보 설정에서 Global 지역을 선택해야 합니다.
 
 Codex 연결은 파일·셸·브라우저·외부 MCP 실행이 비활성화된 임시 스레드에서 공식 app-server 프로토콜을 사용하며, Hycli는 Codex OAuth 토큰을 읽거나 복사하지 않습니다.
 

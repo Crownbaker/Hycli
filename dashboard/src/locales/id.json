@@ -394,6 +394,7 @@
   "connections.xaiHint": "Hubungkan Grok dengan kunci API xAI Anda.",
   "connections.zaiHint": "Hubungkan model yang tersedia di akun API Z.ai Anda.",
   "connections.zaiPlanHint": "Hubungkan dengan kunci Z.ai Coding Plan yang terpisah.",
+  "connections.opencode-goHint": "Hubungkan DeepSeek V4.1 Flash dan model chat lainnya dengan kunci OpenCode Go Anda. DeepSeek memerlukan wilayah Global di pengaturan privasi OpenCode.",
   "sites.rename": "Ganti nama situs web",
   "sites.openActions": "Jelajahi tindakan",
   "activity.viewWork": "Lihat log kerja",

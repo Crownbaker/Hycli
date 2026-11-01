@@ -175,7 +175,10 @@ Hycli เปลี่ยนอินเทอร์เฟซจริงขอ�
 | Claude | คีย์ API ของ Anthropic |
 | xAI | คีย์ API ของ xAI |
 | Z.ai / Z.ai Coding Plan | คีย์ API ของ Z.ai |
+| OpenCode Go | คีย์ API ของ OpenCode Go |
 | ChatGPT · เข้าสู่ระบบ | การลงชื่อเข้าใช้ ChatGPT บนเครื่องผ่านโปรโตคอล Codex app-server อย่างเป็นทางการ |
+
+เชื่อมต่อ DeepSeek V4.1 Flash และโมเดลแชตอื่นด้วยคีย์ OpenCode Go DeepSeek ต้องเลือกภูมิภาค Global ในการตั้งค่าความเป็นส่วนตัวของ OpenCode
 
 การเชื่อมต่อผ่านการเข้าสู่ระบบ Codex จะทำงานในเธรดชั่วคราวที่ปิดการเรียกใช้ไฟล์ เชลล์ เบราว์เซอร์ และ MCP ภายนอก โดย Hycli จะไม่อ่านหรือคัดลอกโทเค็น OAuth ของ Codex เด็ดขาด
 

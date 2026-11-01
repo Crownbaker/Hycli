@@ -175,7 +175,10 @@ Hycli वास्तविक वेबसाइट इंटरफ़ेस �
 | Claude | Anthropic API कुंजी |
 | xAI | xAI API कुंजी |
 | Z.ai / Z.ai Coding Plan | Z.ai API कुंजी |
+| OpenCode Go | OpenCode Go API कुंजी |
 | ChatGPT · लॉगिन | आधिकारिक Codex app-server प्रोटोकॉल के माध्यम से स्थानीय ChatGPT साइन-इन |
+
+अपनी OpenCode Go कुंजी से DeepSeek V4.1 Flash और अन्य चैट मॉडल कनेक्ट करें। DeepSeek के लिए OpenCode की गोपनीयता सेटिंग में Global क्षेत्र चुनना आवश्यक है।
 
 Codex लॉगिन कनेक्शन एक अस्थायी थ्रेड में चलता है जिसमें फ़ाइल, शेल, ब्राउज़र और बाहरी MCP निष्पादन अक्षम होते हैं; Hycli कभी भी Codex OAuth टोकन को पढ़ता या कॉपी नहीं करता है।
 

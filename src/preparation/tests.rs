@@ -645,6 +645,7 @@ async fn worker_failure_reasons_survive_job_reload_without_provider_content() {
         provider: "anthropic".into(),
         model: "fixture".into(),
         key: "synthetic-private-key".into(),
+        session: String::new(),
     };
     let roles = ["explore", "organize", "check"];
     let results = futures_util::future::join_all(

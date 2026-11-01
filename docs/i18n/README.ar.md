@@ -175,7 +175,10 @@ node scripts/build.mjs
 | Claude | مفتاح Anthropic API |
 | xAI | مفتاح xAI API |
 | Z.ai / Z.ai Coding Plan | مفتاح Z.ai API |
+| OpenCode Go | مفتاح OpenCode Go API |
 | ChatGPT · تسجيل الدخول | تسجيل دخول ChatGPT محلي عبر بروتوكول Codex app-server الرسمي |
+
+اربط DeepSeek V4.1 Flash ونماذج الدردشة الأخرى باستخدام مفتاح OpenCode Go. يتطلب DeepSeek اختيار المنطقة Global في إعدادات الخصوصية في OpenCode.
 
 يعمل اتصال تسجيل دخول Codex في خيط مؤقت مع تعطيل تنفيذ الملفات والطرفية والمتصفح وخوادم MCP الخارجية؛ ولا يقرأ Hycli رموز OAuth الخاصة بـ Codex أو ينسخها أبدًا.
 

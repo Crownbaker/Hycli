@@ -73,11 +73,13 @@ async fn zai_plans_use_separate_routes_keys_and_checks_without_fallback() {
         provider: "zai".into(),
         model: String::new(),
         key: "synthetic-standard-key".into(),
+        session: String::new(),
     };
     let mut plan = Config {
         provider: "zai-coding-plan".into(),
         model: "glm-5.3-flash".into(),
         key: "synthetic-plan-key".into(),
+        session: String::new(),
     };
     assert_eq!(client.check(&standard).await.unwrap(), vec!["glm-5.3"]);
     assert_eq!(client.check(&plan).await.unwrap(), vec!["glm-5.3-flash"]);
@@ -96,17 +98,25 @@ async fn zai_plans_use_separate_routes_keys_and_checks_without_fallback() {
 
 #[tokio::test]
 async fn all_api_adapters_keep_keys_in_transport_and_accept_completed_text() {
-    for provider_id in ["openai", "anthropic", "xai", "zai", "zai-coding-plan"] {
+    for provider_id in [
+        "openai",
+        "anthropic",
+        "xai",
+        "zai",
+        "zai-coding-plan",
+        "opencode-go",
+    ] {
         let id = provider_id.to_string();
         let route = match provider_id {
             "anthropic" => "/messages",
             "zai" | "zai-coding-plan" => "/chat/completions",
+            "opencode-go" => "/openai/v1/chat/completions",
             _ => "/responses",
         };
         let router=Router::new().route(route,post(move|headers:HeaderMap,Json(body):Json<Value>|{let id=id.clone();async move{
             assert!(!body.to_string().contains("synthetic-provider-key"));
             if id=="anthropic"{assert_eq!(headers.get("x-api-key").unwrap(),"synthetic-provider-key");assert_eq!(headers.get("anthropic-version").unwrap(),"2023-06-01");Json(json!({"stop_reason":"end_turn","content":[{"type":"text","text":"OK"}]}))}
-            else{assert_eq!(headers.get("authorization").unwrap(),"Bearer synthetic-provider-key");if is_zai(&id){Json(json!({"choices":[{"finish_reason":"stop","message":{"content":"OK"}}]}))}else{assert_eq!(body["store"],false);Json(json!({"status":"completed","output":[{"type":"message","content":[{"type":"output_text","text":"OK"}]}]}))}}
+            else{assert_eq!(headers.get("authorization").unwrap(),"Bearer synthetic-provider-key");if is_zai(&id)||id=="opencode-go"{Json(json!({"choices":[{"finish_reason":"stop","message":{"content":"OK"}}]}))}else{assert_eq!(body["store"],false);Json(json!({"status":"completed","output":[{"type":"message","content":[{"type":"output_text","text":"OK"}]}]}))}}
         }}));
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let url = format!("http://{}", listener.local_addr().unwrap());
@@ -121,6 +131,7 @@ async fn all_api_adapters_keep_keys_in_transport_and_accept_completed_text() {
             provider: provider_id.into(),
             model: "fixture-model".into(),
             key: "synthetic-provider-key".into(),
+            session: String::new(),
         };
         assert_eq!(
             client
@@ -150,6 +161,10 @@ fn interrupted_or_truncated_output_is_not_presented_as_complete() {
         (
             "zai-coding-plan",
             json!({"choices":[{"finish_reason":"length","message":{"content":"partial"}}]}),
+        ),
+        (
+            "opencode-go",
+            json!({"choices":[{"finish_reason":"length","message":{"content":"partial","reasoning_content":"thinking"}}]}),
         ),
     ] {
         assert!(extract_text(provider, &value).is_err());
@@ -208,6 +223,7 @@ async fn inference_runs_three_workers_and_queues_the_rest() {
         provider: "openai".into(),
         model: "fixture-model".into(),
         key: "synthetic-key".into(),
+        session: String::new(),
     };
     let results = futures_util::future::join_all(
         (0..7).map(|_| client.complete(&config, "Reply OK", "Fixture")),
@@ -454,6 +470,7 @@ async fn unreadable_provider_error_body_preserves_rate_limit_status() {
                 provider: "anthropic".into(),
                 model: "fixture".into(),
                 key: "synthetic-key".into(),
+                session: String::new(),
             },
             "fixture",
             "fixture",
@@ -513,6 +530,7 @@ async fn interrupted_response_body_keeps_known_status_and_never_leaks_body() {
                     provider: "anthropic".into(),
                     model: "fixture".into(),
                     key: "synthetic-private-key".into(),
+                    session: String::new(),
                 },
                 "fixture",
                 "fixture",
@@ -523,4 +541,177 @@ async fn interrupted_response_body_keeps_known_status_and_never_leaks_body() {
         assert!(!format!("{error:?}").contains("private-"));
         server.await.unwrap();
     }
+}
+
+#[tokio::test]
+async fn opencode_go_sends_sessions_lists_only_chat_models_and_hides_reasoning() {
+    use axum::{http::StatusCode, routing::get};
+    use std::sync::Mutex;
+
+    assert_eq!(
+        api_origin("opencode-go").unwrap(),
+        "https://opencode.ai/inference/go"
+    );
+    assert_eq!(
+        provider("opencode-go").unwrap().default_model,
+        "deepseek-v4.1-flash"
+    );
+    let sessions = Arc::new(Mutex::new(Vec::<String>::new()));
+    let seen = sessions.clone();
+    let router = Router::new()
+        .route(
+            "/v1/models",
+            get(|headers: HeaderMap| async move {
+                assert_eq!(
+                    headers.get("authorization").unwrap(),
+                    "Bearer synthetic-go-key"
+                );
+                Json(json!({"object":"list","data":[
+                    {"id":"qwen3.8-max","api":{"messages":{"base_url":"https://example.invalid/anthropic/v1"}}},
+                    {"id":"deepseek-v4.1-flash","api":{"chat-completions":{"base_url":"https://example.invalid/openai/v1"}}},
+                    {"id":"gemini-4-argon","api":{"generate-content":{"base_url":"https://example.invalid/google/v1beta"}}},
+                    {"id":"glm-5.3","api":{"chat-completions":{"base_url":"https://example.invalid/openai/v1"}}},
+                    {"id":"deepseek-v4.1-flash","api":{"chat-completions":{"base_url":"https://example.invalid/openai/v1"}}}
+                ]}))
+            }),
+        )
+        .route(
+            "/openai/v1/chat/completions",
+            post(move |headers: HeaderMap, Json(body): Json<Value>| {
+                let seen = seen.clone();
+                async move {
+                    assert_eq!(
+                        headers.get("authorization").unwrap(),
+                        "Bearer synthetic-go-key"
+                    );
+                    assert!(
+                        headers
+                            .get("user-agent")
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .starts_with("hycli/")
+                    );
+                    let session = headers
+                        .get("x-opencode-session")
+                        .expect("Go rejects requests without a session")
+                        .to_str()
+                        .unwrap()
+                        .to_owned();
+                    assert!(!session.is_empty());
+                    seen.lock().unwrap().push(session);
+                    assert!(!body.to_string().contains("synthetic-go-key"));
+                    assert_eq!(body["messages"][0]["role"], "system");
+                    assert_eq!(body["messages"][1]["role"], "user");
+                    assert_eq!(body["max_tokens"], 32000);
+                    match body["model"].as_str().unwrap() {
+                        "unavailable-model" => (
+                            StatusCode::BAD_REQUEST,
+                            Json(json!({"error":{"type":"server_error","message":"Upstream request failed: Model is unavailable."}})),
+                        ),
+                        "deepseek-v4.1-flash" => (
+                            StatusCode::OK,
+                            Json(json!({"choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":"OK","reasoning_content":"private-reasoning"}}]})),
+                        ),
+                        other => panic!("unexpected model {other}"),
+                    }
+                }
+            }),
+        );
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let origin = format!("http://{}", listener.local_addr().unwrap());
+    let server = tokio::spawn(async move {
+        axum::serve(listener, router).await.unwrap();
+    });
+    let mut client = Client::new(Arc::new(codex::Codex::new(
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".cache/provider-tests"),
+    )));
+    client.origins.insert("opencode-go".into(), origin);
+    let mut config = Config {
+        provider: "opencode-go".into(),
+        model: "deepseek-v4.1-flash".into(),
+        key: "synthetic-go-key".into(),
+        session: String::new(),
+    };
+    assert_eq!(
+        client.check(&config).await.unwrap(),
+        vec!["deepseek-v4.1-flash", "glm-5.3"],
+        "Anthropic- and Google-format Go models cannot be called by this adapter"
+    );
+    config.session = "job-session".into();
+    for _ in 0..2 {
+        let text = client
+            .complete(&config, "Reply OK", "Fixture")
+            .await
+            .unwrap();
+        assert_eq!(text, "OK");
+        assert!(!text.contains("private-reasoning"));
+    }
+    config.session.clear();
+    client
+        .complete(&config, "Reply OK", "Fixture")
+        .await
+        .unwrap();
+    {
+        let sessions = sessions.lock().unwrap();
+        assert_eq!(sessions.len(), 4);
+        assert_eq!(sessions[1], "job-session");
+        assert_eq!(sessions[2], "job-session", "one job keeps one Go session");
+        assert_ne!(
+            sessions[0], sessions[3],
+            "unbound requests are separate sessions"
+        );
+        assert!(!sessions[0].contains("job-session") && !sessions[3].contains("job-session"));
+    }
+    config.model = "unavailable-model".into();
+    assert_eq!(
+        client.check(&config).await.unwrap_err().public_code,
+        "model_unavailable"
+    );
+    server.abort();
+}
+
+#[tokio::test]
+async fn opencode_go_without_chat_models_or_valid_key_fails_with_actionable_codes() {
+    use axum::{http::StatusCode, routing::get};
+    let router = Router::new()
+        .route(
+            "/v1/models",
+            get(|| async {
+                Json(json!({"data":[{"id":"claude-haiku-5-5","api":{"messages":{}}}]}))
+            }),
+        )
+        .route(
+            "/openai/v1/chat/completions",
+            post(|| async {
+                (
+                    StatusCode::UNAUTHORIZED,
+                    Json(json!({"error":{"type":"server_error","message":"Upstream request failed: Go requires a credential"}})),
+                )
+            }),
+        );
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let origin = format!("http://{}", listener.local_addr().unwrap());
+    let server = tokio::spawn(async move { axum::serve(listener, router).await.unwrap() });
+    let mut client = Client::new(Arc::new(codex::Codex::new(
+        std::env::temp_dir().join("synthetic-opencode-go-test"),
+    )));
+    client.origins.insert("opencode-go".into(), origin);
+    let config = Config {
+        provider: "opencode-go".into(),
+        model: "deepseek-v4.1-flash".into(),
+        key: "synthetic-go-key".into(),
+        session: String::new(),
+    };
+    assert_eq!(
+        client.models(&config).await.unwrap_err().public_code,
+        "model_unavailable"
+    );
+    let error = client
+        .complete(&config, "Reply OK", "Fixture")
+        .await
+        .unwrap_err();
+    assert_eq!(error.public_code, "credentials_invalid");
+    assert!(!format!("{error:?}").contains("synthetic-go-key"));
+    server.abort();
 }

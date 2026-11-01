@@ -175,7 +175,10 @@ Bir yapay zekâ ajanını gerçek web sitelerine ve oturum açılmış hesaplara
 | Claude | Anthropic API anahtarı |
 | xAI | xAI API anahtarı |
 | Z.ai / Z.ai Coding Plan | Z.ai API anahtarı |
+| OpenCode Go | OpenCode Go API anahtarı |
 | ChatGPT · oturum açma | Resmi Codex app-server protokolü üzerinden yerel ChatGPT oturumu |
+
+DeepSeek V4.1 Flash ve diğer sohbet modellerini OpenCode Go anahtarınızla bağlayın. DeepSeek için OpenCode gizlilik ayarlarında Global bölgesi seçilmelidir.
 
 Codex oturum bağlantısı; dosya, kabuk, tarayıcı ve harici MCP yürütmesi devre dışı bırakılmış geçici bir iş parçacığında çalışır; Hycli, Codex OAuth belirteçlerini asla okumaz veya kopyalamaz.
 

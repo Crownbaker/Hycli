@@ -175,7 +175,10 @@ AIエージェントを実際のウェブサイトやログイン済みアカウ
 | Claude | Anthropic APIキー |
 | xAI | xAI APIキー |
 | Z.ai / Z.ai Coding Plan | Z.ai APIキー |
+| OpenCode Go | OpenCode Go APIキー |
 | ChatGPT · ログイン | 公式 Codex app-server プロトコルによるローカル ChatGPT ログイン |
+
+OpenCode Go キーで DeepSeek V4.1 Flash などのチャットモデルを接続します。 DeepSeek を使うには OpenCode のプライバシー設定で Global リージョンを選択してください。
 
 Codexログイン接続は、ファイル・シェル・ブラウザー・外部MCPの実行を無効化した一時スレッドで動作し、HycliがCodexのOAuthトークンを読み取ったりコピーしたりすることはありません。
 

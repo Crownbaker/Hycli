@@ -188,7 +188,10 @@ Connecting an AI agent to real websites and logged-in accounts raises serious qu
 | Claude | Anthropic API key |
 | xAI | xAI API key |
 | Z.ai / Z.ai Coding Plan | Z.ai API key |
+| OpenCode Go | OpenCode Go API key |
 | ChatGPT · login | Local ChatGPT sign-in via the official Codex app-server protocol |
+
+OpenCode Go defaults to DeepSeek V4.1 Flash and lists Chat Completions models only. DeepSeek requires **Global** under OpenCode **Settings → Privacy → Regions**. Connect your key in **AI connections**; Hycli sends its own user agent and a stable session identifier per preparation, description or summary job.
 
 The Codex login connection runs in an ephemeral thread with file, shell, browser, and external MCP execution disabled; Hycli never reads or copies Codex OAuth tokens.
 

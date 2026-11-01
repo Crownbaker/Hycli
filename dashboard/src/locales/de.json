@@ -408,6 +408,7 @@
   "connections.xaiHint": "Verbinde Grok mit deinem xAI-API-Schlüssel.",
   "connections.zaiHint": "Verbinde die Modelle, die in deinem Z.ai-API-Konto verfügbar sind.",
   "connections.zaiPlanHint": "Verbinde dich mit deinem separaten Schlüssel für den Z.ai Coding Plan.",
+  "connections.opencode-goHint": "Verbinden Sie DeepSeek V4.1 Flash und weitere Chatmodelle mit Ihrem OpenCode-Go-Schlüssel. DeepSeek erfordert die Region „Global“ in den OpenCode-Datenschutzeinstellungen.",
   "sites.rename": "Website umbenennen",
   "sites.openActions": "Aktionen erkunden",
   "activity.viewWork": "Arbeitsprotokoll ansehen",
